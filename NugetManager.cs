@@ -16,9 +16,9 @@ namespace Org.Kevoree.NugetLoader
             this.pluginPath = pluginPath;
         }
 
-        internal void resolve(string packageName, string packageVersion)
+        internal void resolve(string packageName, string packageVersion, string remoteRepositoryUrl)
         {
-            var repo = PackageRepositoryFactory.Default.CreateRepository("https://packages.nuget.org/api/v2");
+            var repo = PackageRepositoryFactory.Default.CreateRepository(remoteRepositoryUrl);
 
             var packageManager = new PackageManager(repo, pluginPath);
 
@@ -39,7 +39,11 @@ namespace Org.Kevoree.NugetLoader
             var files = Directory.GetFiles(pluginPath, "*.dll", SearchOption.AllDirectories);
             foreach (var file in files)
             {
-                File.Move(file, Path.Combine(pluginPath, Path.GetFileName(file)));
+                var target = Path.Combine(pluginPath, Path.GetFileName(file));
+                if (!File.Exists(target))
+                {
+                    File.Move(file, target);
+                }
             }
         }
     }

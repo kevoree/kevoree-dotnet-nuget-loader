@@ -1,6 +1,7 @@
 ﻿using Org.Kevoree.Core.Api;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,19 +10,24 @@ namespace Org.Kevoree.NugetLoader
 {
     public class NugetLoader
     {
-        private string basePath;
-        public NugetLoader(string basePath)
+        private string nugetLocalRepositoryPath;
+        public NugetLoader(string nugetLocalRepositoryPath)
         {
-            this.basePath = basePath;
+            this.nugetLocalRepositoryPath = nugetLocalRepositoryPath;
         }
 
-        public T LoadRunnerFromPackage<T>(string packageName, string packageVersion) where T:IRunner
+        public T LoadRunnerFromPackage<T>(string packageName, string packageVersion, string remoteRepositoryUrl) where T : IRunner
         {
-            var mepdm = new MEPDirectoryManager(basePath);
+            if (this.nugetLocalRepositoryPath == null || this.nugetLocalRepositoryPath == "")
+            {
+                this.nugetLocalRepositoryPath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+                Directory.CreateDirectory(this.nugetLocalRepositoryPath);
+            }
+            var mepdm = new MEPDirectoryManager(nugetLocalRepositoryPath);
             var cachePath = mepdm.getCachePath(packageName, packageVersion);
             var pluginPath = mepdm.getPluginPath(packageName, packageVersion);
 
-            new NugetManager(pluginPath).resolve(packageName, packageVersion);
+            new NugetManager(pluginPath).resolve(packageName, packageVersion, remoteRepositoryUrl);
 
 
             // This creates a ShadowCopy of the MEF DLL's 
