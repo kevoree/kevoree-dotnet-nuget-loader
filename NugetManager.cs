@@ -12,19 +12,23 @@ namespace Org.Kevoree.NugetLoader
             this.pluginPath = pluginPath;
         }
 
-        internal void resolve(string packageName, string packageVersion, string remoteRepositoryUrl)
+        internal bool resolve(string packageName, string packageVersion, string remoteRepositoryUrl)
         {
             var repo = PackageRepositoryFactory.Default.CreateRepository(remoteRepositoryUrl);
 
             var packageManager = new PackageManager(repo, pluginPath);
 
-            var package = repo.FindPackage(packageName, SemanticVersion.Parse(packageVersion));
+            var package = repo.FindPackage(packageName, SemanticVersion.Parse(packageVersion), true, true);
+            bool ret;
             if (package != null)
             {
                 packageManager.InstallPackage(package, false, true);
 
                 this.cleanupDlls();
+                ret =  true;
             }
+            else { ret = false;  }
+            return ret;
         }
 
         /**
