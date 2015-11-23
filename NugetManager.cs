@@ -24,27 +24,10 @@ namespace Org.Kevoree.NugetLoader
             {
                 packageManager.InstallPackage(package, false, true);
 
-                this.cleanupDlls();
-                ret =  true;
+                ret = true;
             }
-            else { ret = false;  }
+            else { ret = false; }
             return ret;
-        }
-
-        /**
-         * Déplace toutes les dll à la racine du répertoire.
-         */
-        private void cleanupDlls()
-        {
-            var files = Directory.GetFiles(pluginPath, "*.dll", SearchOption.AllDirectories);
-            foreach (var file in files)
-            {
-                var target = Path.Combine(pluginPath, Path.GetFileName(file));
-                if (!File.Exists(target))
-                {
-                    File.Move(file, target);
-                }
-            }
         }
     }
 }
